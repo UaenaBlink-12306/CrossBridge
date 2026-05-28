@@ -70,7 +70,20 @@ jobs:
         run: npm run build
 
       - name: Build Tauri app
-        run: npm run windows:package:check
+        shell: cmd
+        run: |
+          npm run windows:package:check > build-windows.log 2>&1
+          if %errorlevel% neq 0 (
+            type build-windows.log
+            exit /b %errorlevel%
+          )
+
+      - name: Upload build log
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-build-log
+          path: build-windows.log
 
       - name: Code Sign Windows Installers (Optional)
         shell: powershell
