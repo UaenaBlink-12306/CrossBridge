@@ -66,6 +66,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Compile workspaces
+        run: npm run build
+
       - name: Build Tauri app
         run: npm run windows:package:check
 
