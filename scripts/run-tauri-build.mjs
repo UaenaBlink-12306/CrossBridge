@@ -223,7 +223,7 @@ function buildWindowsCommand() {
   process.exit(result.status ?? 1);
 }
 
-if (process.platform !== "win32") {
+if (process.platform !== "win32" || process.env.GITHUB_ACTIONS === "true") {
   const result = run(tauriBin, ["build", ...process.argv.slice(2)], {
     cwd: windowsWorkspaceRoot,
     stdio: "inherit"
