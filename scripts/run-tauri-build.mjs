@@ -224,7 +224,8 @@ function buildWindowsCommand() {
 }
 
 if (process.platform !== "win32" || process.env.GITHUB_ACTIONS === "true") {
-  const result = run(tauriBin, ["build", ...process.argv.slice(2)], {
+  const cmd = process.platform === "win32" ? "npx.cmd" : "npx";
+  const result = run(cmd, ["tauri", "build", ...process.argv.slice(2)], {
     cwd: windowsWorkspaceRoot,
     stdio: "inherit"
   });
