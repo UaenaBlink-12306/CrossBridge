@@ -1,0 +1,45 @@
+{
+  "name": "crossbridge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first, VPN-compatible Windows and Android bridge app.",
+  "packageManager": "npm@11.8.0",
+  "workspaces": [
+    "apps/windows",
+    "services/relay",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @crossbridge/protocol && npm run build -w @crossbridge/crypto && npm run build -w @crossbridge/shared-types && npm run build -w @crossbridge/relay && npm run build -w @crossbridge/windows",
+    "test": "npm run test -w @crossbridge/protocol && npm run test -w @crossbridge/crypto && npm run test -w @crossbridge/relay && npm run test -w @crossbridge/windows",
+    "check": "npm run build && npm run test",
+    "check:prereqs": "node scripts/check-prereqs.mjs",
+    "android:doctor": "npm --prefix apps/android run doctor",
+    "android:test": "npm --prefix apps/android run test",
+    "android:build": "npm --prefix apps/android run build",
+    "android:install": "npm --prefix apps/android run install:debug",
+    "dev:relay": "npm run dev -w @crossbridge/relay",
+    "dev:windows": "npm run dev -w @crossbridge/windows",
+    "relay:start": "npm run dev:relay",
+    "windows:web": "npm run dev:windows",
+    "windows:start": "npm run tauri:dev -w @crossbridge/windows",
+    "windows:build": "npm run build -w @crossbridge/windows",
+    "windows:package:check": "npm run tauri:build -w @crossbridge/windows",
+    "mock:android-pair": "tsx scripts/mock-android-pair.ts",
+    "relay:check": "npm run typecheck -w @crossbridge/relay",
+    "relay:start:prod": "npm run start -w @crossbridge/relay",
+    "verify:e2e": "npm run build -w @crossbridge/relay && node scripts/run-e2e-with-relay.mjs",
+    "verify:full": "npm run check && npm run android:doctor && npm run android:test && npm run android:build && npm run verify:e2e",
+    "tauri:dev": "npm run tauri:dev -w @crossbridge/windows",
+    "tauri:build": "npm run tauri:build -w @crossbridge/windows"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  }
+}

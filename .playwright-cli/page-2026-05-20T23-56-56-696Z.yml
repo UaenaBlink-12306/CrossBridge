@@ -1,0 +1,73 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e10]:
+        - heading "CrossBridge" [level=1] [ref=e11]
+        - paragraph [ref=e12]: Error
+    - generic [ref=e13]: Error
+  - generic [ref=e15]:
+    - navigation "Main navigation" [ref=e16]:
+      - button "Home" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - generic [ref=e21]: Home
+      - button "Pair" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+        - generic [ref=e29]: Pair
+      - button "Devices" [ref=e30] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e33]: Devices
+      - button "Transfers" [ref=e34] [cursor=pointer]:
+        - img [ref=e35]
+        - generic [ref=e38]: Transfers
+      - button "Notifications" [ref=e39] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - button "Settings" [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e48]: Settings
+      - button "Debug" [ref=e49] [cursor=pointer]:
+        - img [ref=e50]
+        - generic [ref=e59]: Debug
+    - main [ref=e60]:
+      - generic [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - heading "Connect your phone and PC" [level=2] [ref=e64]
+            - paragraph [ref=e65]: Pair once, then CrossBridge reconnects trusted devices through encrypted relay mode when both apps open.
+          - button "Pair phone" [ref=e66] [cursor=pointer]:
+            - img [ref=e67]
+            - text: Pair phone
+        - generic [ref=e73]:
+          - generic [ref=e74]:
+            - generic [ref=e75]:
+              - heading "Connection" [level=2] [ref=e76]
+              - paragraph [ref=e77]: Error
+            - img [ref=e78]
+          - generic [ref=e80]:
+            - generic [ref=e81]:
+              - generic [ref=e82]: Relay
+              - strong [ref=e83]: disconnected
+            - generic [ref=e84]:
+              - generic [ref=e85]: Trusted online
+              - strong [ref=e86]: 0 / 1
+          - generic [ref=e87]:
+            - generic [ref=e88]: Windows relay URL
+            - textbox "Windows relay URL" [ref=e89]: ws://127.0.0.1:8787/connect
+          - paragraph [ref=e90]: Relay connection failed.
+          - button "Reconnect" [ref=e91] [cursor=pointer]:
+            - img [ref=e92]
+            - text: Reconnect
+        - generic [ref=e95]:
+          - generic [ref=e96]:
+            - img [ref=e97]
+            - generic [ref=e99]: Windows app
+            - strong [ref=e100]: Ready
+          - generic [ref=e101]:
+            - img [ref=e102]
+            - generic [ref=e104]: Android app
+            - strong [ref=e105]: Trusted device offline
+          - generic [ref=e106]:
+            - img [ref=e107]
+            - generic [ref=e110]: Connection
+            - strong [ref=e111]: Error

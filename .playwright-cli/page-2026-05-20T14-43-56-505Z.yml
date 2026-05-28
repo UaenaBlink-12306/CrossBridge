@@ -1,0 +1,93 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e10]:
+        - heading "CrossBridge" [level=1] [ref=e11]
+        - paragraph [ref=e12]: Not paired
+    - generic [ref=e13]: Not paired
+  - generic [ref=e15]:
+    - navigation "Main navigation" [ref=e16]:
+      - button "Home" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - generic [ref=e21]: Home
+      - button "Pair" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+        - generic [ref=e29]: Pair
+      - button "Devices" [ref=e30] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e33]: Devices
+      - button "Transfers" [ref=e34] [cursor=pointer]:
+        - img [ref=e35]
+        - generic [ref=e38]: Transfers
+      - button "Notifications" [ref=e39] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - button "Settings" [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e48]: Settings
+      - button "Debug" [ref=e49] [cursor=pointer]:
+        - img [ref=e50]
+        - generic [ref=e59]: Debug
+    - main [ref=e60]:
+      - generic [ref=e115]:
+        - generic [ref=e116]:
+          - generic [ref=e117]:
+            - generic [ref=e118]: Windows relay URL
+            - textbox "Windows relay URL" [ref=e119]: ws://127.0.0.1:8787/connect
+          - generic [ref=e120]:
+            - generic [ref=e121]: Android QR relay URL
+            - textbox "Android QR relay URL" [ref=e122]:
+              - /placeholder: ws://10.0.2.2:8787/connect
+              - text: ws://10.0.2.2:8787/connect
+          - button "Create pairing code" [disabled] [ref=e123]:
+            - img [ref=e279]
+            - text: Create pairing code
+        - generic [ref=e130]:
+          - region "Pairing code" [ref=e131]:
+            - generic [ref=e132]:
+              - generic [ref=e133]:
+                - heading "Pairing code" [level=2] [ref=e174]
+                - paragraph [ref=e135]: Scan this QR code with the CrossBridge Android app to pair.
+              - button "Copy JSON" [ref=e250] [cursor=pointer]:
+                - img [ref=e251]
+                - text: Copy JSON
+            - img "CrossBridge pairing QR code" [ref=e255]
+            - group [ref=e256]:
+              - generic "Show QR JSON payload" [ref=e257] [cursor=pointer]
+          - region "Pairing status" [ref=e143]:
+            - generic [ref=e144]:
+              - img [ref=e145]
+              - generic [ref=e148]:
+                - heading "Pairing state" [level=3] [ref=e149]
+                - paragraph [ref=e150]: VPN can stay on. If local connection is blocked, CrossBridge uses encrypted relay mode.
+            - generic [ref=e151]:
+              - generic [ref=e152]:
+                - generic [ref=e153]:
+                  - img [ref=e154]
+                  - text: Relay
+                - strong [ref=e158]: Reconnecting
+              - generic [ref=e159]:
+                - generic [ref=e160]:
+                  - img [ref=e161]
+                  - text: Status
+                - strong [ref=e163]: Error
+              - generic [ref=e271]:
+                - generic [ref=e272]:
+                  - img [ref=e273]
+                  - text: Android
+                - strong [ref=e275]: unknown Android SDK built for x86_64
+              - generic [ref=e258]:
+                - generic [ref=e259]:
+                  - img [ref=e260]
+                  - text: Expires
+                - strong [ref=e263]:
+                  - text: 2026年5月20日 22:44:21
+                  - generic [ref=e264]: 0:26 left
+            - generic [ref=e276]:
+              - generic [ref=e277]: Verification code
+              - strong [ref=e278]: "758668"
+            - alert [ref=e282]: Send RELAY_HELLO before encrypted messages.
+            - button "Confirm pairing" [disabled] [ref=e164]:
+              - img [ref=e165]
+              - text: Confirm pairing

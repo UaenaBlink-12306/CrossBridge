@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+.vite/
+.idea/
+.vscode/
+*.log
+
+# Android
+.gradle/
+local.properties
+captures/
+*.apk
+*.aab
+
+# Tauri / Rust
+target/
+Cargo.lock
+
+# OS
+Thumbs.db
+.DS_Store

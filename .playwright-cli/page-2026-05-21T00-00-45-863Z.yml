@@ -1,0 +1,62 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e10]:
+        - heading "CrossBridge" [level=1] [ref=e11]
+        - paragraph [ref=e12]: Reconnecting
+    - generic [ref=e13]: Reconnecting
+  - generic [ref=e15]:
+    - navigation "Main navigation" [ref=e16]:
+      - button "Home" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - generic [ref=e21]: Home
+      - button "Pair" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+        - generic [ref=e29]: Pair
+      - button "Devices" [active] [ref=e30] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e33]: Devices
+      - button "Transfers" [ref=e34] [cursor=pointer]:
+        - img [ref=e35]
+        - generic [ref=e38]: Transfers
+      - button "Notifications" [ref=e39] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - button "Settings" [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e48]: Settings
+      - button "Debug" [ref=e49] [cursor=pointer]:
+        - img [ref=e50]
+        - generic [ref=e59]: Debug
+    - main [ref=e60]:
+      - generic [ref=e124]:
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - heading "Trusted devices" [level=2] [ref=e127]
+            - paragraph [ref=e128]: Android phones saved after relay pairing appear here with current relay presence.
+          - button "Reconnect" [ref=e129] [cursor=pointer]
+        - article [ref=e131]:
+          - generic [ref=e132]:
+            - img [ref=e134]
+            - generic [ref=e136]:
+              - heading "unknown Android SDK built for x86_64" [level=3] [ref=e137]
+              - paragraph [ref=e138]: android
+            - generic [ref=e139]: Offline
+          - generic [ref=e140]:
+            - generic [ref=e141]:
+              - term [ref=e142]: Device ID
+              - definition [ref=e143]: android_96768faa-cb7a-4189-a87b-db701a0bb2fc
+            - generic [ref=e144]:
+              - term [ref=e145]: Paired
+              - definition [ref=e146]: 2026年5月21日 07:55
+            - generic [ref=e147]:
+              - term [ref=e148]: Last seen
+              - definition [ref=e149]: 2026年5月21日 08:00
+          - generic [ref=e150]:
+            - button "Reconnect" [ref=e151] [cursor=pointer]:
+              - img [ref=e152]
+              - text: Reconnect
+            - button "Remove" [ref=e155] [cursor=pointer]:
+              - img [ref=e156]
+              - text: Remove

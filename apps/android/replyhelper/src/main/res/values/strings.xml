@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Reply Helper</string>
+    <string name="channel_name">Runtime Reply Helper</string>
+    <string name="reply_label">Reply</string>
+    <string name="notification_title">Runtime reply</string>
+    <string name="notification_text">Verify CrossBridge direct reply</string>
+</resources>

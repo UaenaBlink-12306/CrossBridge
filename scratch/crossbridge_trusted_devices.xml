@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="trustedDevices">[{&quot;deviceId&quot;:&quot;windows_dev_test_id&quot;,&quot;deviceName&quot;:&quot;Dev Windows PC&quot;,&quot;platform&quot;:&quot;windows&quot;,&quot;publicKey&quot;:&quot;MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEIrwwS9cbgHvo1Dg4ZwsH+jfF2u0Ln0fDOTYAVpRLHJKhe9pWyCZOpWa3KWBw0CfjarX5BvVSKZZzVLF/OnplyQ==&quot;,&quot;pairedAt&quot;:1779614287084}]</string>
+</map>

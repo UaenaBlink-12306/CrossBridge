@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="trustedDevices">[{"deviceId":"pc_runtime_001","deviceName":"Runtime Windows","platform":"windows","publicKey":"pc_runtime_public_key","pairedAt":1779326000000}]</string>
+</map>

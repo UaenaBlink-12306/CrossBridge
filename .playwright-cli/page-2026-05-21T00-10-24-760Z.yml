@@ -1,0 +1,36 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e10]:
+        - heading "CrossBridge" [level=1] [ref=e11]
+        - paragraph [ref=e12]: Not paired
+    - generic [ref=e13]: Not paired
+  - generic [ref=e15]:
+    - navigation "Main navigation" [ref=e16]:
+      - button "Home" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - generic [ref=e21]: Home
+      - button "Pair" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+        - generic [ref=e29]: Pair
+      - button "Devices" [ref=e30] [cursor=pointer]:
+        - img [ref=e31]
+        - generic [ref=e33]: Devices
+      - button "Transfers" [ref=e34] [cursor=pointer]:
+        - img [ref=e35]
+        - generic [ref=e38]: Transfers
+      - button "Notifications" [ref=e39] [cursor=pointer]:
+        - img [ref=e40]
+        - generic [ref=e43]: Notifications
+      - button "Settings" [ref=e44] [cursor=pointer]:
+        - img [ref=e45]
+        - generic [ref=e48]: Settings
+      - button "Debug" [ref=e49] [cursor=pointer]:
+        - img [ref=e50]
+        - generic [ref=e59]: Debug
+    - main [ref=e60]:
+      - generic [ref=e125]:
+        - img [ref=e159]
+        - heading "No trusted devices yet" [level=2] [ref=e161]
+        - paragraph [ref=e162]: No trusted devices yet. Pair your Android phone to begin.

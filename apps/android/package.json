@@ -1,0 +1,11 @@
+{
+  "name": "@crossbridge/android-scaffold",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "doctor": "node scripts/check-android-env.mjs",
+    "build": "node scripts/run-gradle-task.mjs :app:assembleDebug",
+    "test": "node scripts/run-gradle-task.mjs :app:testDebugUnitTest",
+    "install:debug": "node scripts/run-gradle-task.mjs :app:installDebug"
+  }
+}

@@ -1,0 +1,64 @@
+name: Android
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  android:
+    name: Android unit tests and debug build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-36" "build-tools;35.0.0"
+
+      - name: Set up Gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Check Gradle wrapper
+        shell: bash
+        run: |
+          missing=0
+          for path in \
+            apps/android/gradlew \
+            apps/android/gradlew.bat \
+            apps/android/gradle/wrapper/gradle-wrapper.jar \
+            apps/android/gradle/wrapper/gradle-wrapper.properties
+          do
+            if [[ ! -f "$path" ]]; then
+              echo "Missing $path"
+              missing=1
+            fi
+          done
+
+          if [[ "$missing" -ne 0 ]]; then
+            echo "::error title=Gradle wrapper missing::Generate and commit the Android Gradle wrapper from apps/android with: gradle wrapper --gradle-version 8.13"
+            echo "Do not commit a placeholder gradle-wrapper.jar. Generate it with Gradle so the wrapper JAR is real."
+            exit 1
+          fi
+
+          chmod +x apps/android/gradlew
+
+      - name: Run Android JVM unit tests
+        run: |
+          cd apps/android
+          ./gradlew :app:testDebugUnitTest
+
+      - name: Assemble Android debug build
+        run: |
+          cd apps/android
+          ./gradlew :app:assembleDebug

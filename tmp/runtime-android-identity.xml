@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <string name="deviceId">android_runtime_001</string>
+    <string name="deviceName">Runtime Pixel</string>
+    <string name="platform">android</string>
+    <string name="publicKey">android_runtime_public_key</string>
+</map>

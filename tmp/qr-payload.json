@@ -1,0 +1,10 @@
+{
+  "protocol": "crossbridge-v1",
+  "pairingSessionId": "pair_bfc0972c30444cd78d19ae6f",
+  "relayUrl": "ws://127.0.0.1:8787/connect",
+  "pcDeviceId": "pc_g8E-gjnyOfVHlJkd",
+  "pcDeviceName": "CrossBridge Windows",
+  "pcPublicKey": "elHmEopwokX7uwW5n+n/LttzUkUE1UN4o+w4swDvVno=",
+  "pairingToken": "2OflF3nxpGry0aD54QSfV5zk",
+  "expiresAt": 1779074689185
+}
