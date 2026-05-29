@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
+use std::io::Write;
 use std::net::TcpStream;
 use std::path::PathBuf;
 use std::ptr::{null, null_mut};
@@ -544,9 +545,11 @@ fn handle_probe_or_transfer(app: tauri::AppHandle, mut stream: std::net::TcpStre
             }
         }
         
-        let state = app.state::<FileTransferState>();
-        if let Ok(mut receivers) = state.active_receivers.lock() {
-            receivers.remove(&transfer_id);
+        {
+            let state = app.state::<FileTransferState>();
+            if let Ok(mut receivers) = state.active_receivers.lock() {
+                receivers.remove(&transfer_id);
+            }
         }
     }
 
