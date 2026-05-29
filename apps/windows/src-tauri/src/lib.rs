@@ -547,9 +547,8 @@ fn handle_probe_or_transfer(app: tauri::AppHandle, mut stream: std::net::TcpStre
         
         {
             let state = app.state::<FileTransferState>();
-            if let Ok(mut receivers) = state.active_receivers.lock() {
-                receivers.remove(&transfer_id);
-            }
+            let mut receivers = state.active_receivers.lock().unwrap();
+            receivers.remove(&transfer_id);
         }
     }
 
