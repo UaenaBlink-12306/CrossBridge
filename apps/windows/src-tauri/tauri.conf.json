@@ -30,7 +30,7 @@
       "icons/icon.ico"
     ],
     "windows": {
-      "signCommand": "cmd /c \"if exist \\\"%TAURI_WIN_SIGNING_PFX_PATH%\\\" (signtool sign /f \\\"%TAURI_WIN_SIGNING_PFX_PATH%\\\" /p \\\"%TAURI_WIN_SIGNING_PFX_PASSWORD%\\\" /fd sha256 /tr http://timestamp.digicert.com /td sha256 %1) else (echo Code signing certificate not found, skipping: %1)\""
+      "signCommand": "node ../../../scripts/sign-binary.mjs %1"
     }
   }
 }
