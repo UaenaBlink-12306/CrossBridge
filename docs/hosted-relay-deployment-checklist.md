@@ -19,14 +19,15 @@ Create a new **Web Service** on Render with the following configuration:
 2. **Runtime**: `Node`
 3. **Region**: Choose the region closest to your primary users (e.g., `Oregon (US West)`, `Frankfurt (EU Central)`).
 4. **Branch**: `main` (or your active development branch).
-5. **Root Directory**: *Keep empty* (runs from the root of the workspace).
+5. **Root Directory**: `.`
 6. **Build Command**:
    ```bash
-   npm install && npm run build
+   npm ci --include=dev && npm run build -w @crossbridge/protocol && npm run build -w @crossbridge/relay
    ```
+   Render builds from a clean checkout, so the relay's workspace dependency on `@crossbridge/protocol` must be compiled first.
 7. **Start Command**:
    ```bash
-   node services/relay/dist/index.js
+   npm run start -w @crossbridge/relay
    ```
 8. **Plan**: `Web Service (Free)` or `Starter` (Starter is recommended to prevent service spinning down after inactivity, which disconnects idle clients).
 
@@ -37,11 +38,10 @@ Configure the following environment variables in the **Environment** tab of your
 | :--- | :--- | :--- |
 | `NODE_ENV` | `production` | Enables production optimizations. |
 | `HOST` | `0.0.0.0` | Binds Fastify to all network interfaces. |
-| `PORT` | `8787` | Tells Fastify which port to listen on. |
 | `CROSSBRIDGE_RELAY_PUBLIC_URL` | `wss://<your-service-name>.onrender.com/connect` | Public WebSocket entrypoint (replace `<your-service-name>` with your actual Render URL or your custom domain: `wss://relay.yourdomain.com/connect`). |
-| `CROSSBRIDGE_RELAY_MAX_PAYLOAD_BYTES` | `2000000` | Limits maximum size of incoming WebSocket data chunks (2 MB) for file transfers. |
-| `CROSSBRIDGE_RELAY_HEARTBEAT_MS` | `30000` | Websocket ping/pong interval (30 seconds) to clean up stale sockets. |
-| `CROSSBRIDGE_RELAY_TOKEN_MIN_LENGTH` | `8` | Security minimum size for generated session tokens. |
+
+> [!NOTE]
+> Render injects `PORT` automatically, so do not set it unless the host explicitly requires it. The other relay tuning variables can stay unset unless you want to override the server defaults.
 
 ---
 

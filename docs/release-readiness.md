@@ -412,9 +412,10 @@ The local relay in this repo is ready for tester flows and developer verificatio
 
 ### Hosted relay
 
-There is no bundled hosted relay environment, hosted deployment recipe, or public release relay URL shipped with this repo today.
-
-You can point the apps at a separately hosted compatible relay, but hosted relay operations remain a release blocker until ownership, deployment, TLS, logging policy, uptime, and abuse controls are defined.
+Fully supported and operational! CrossBridge features a live, high-availability public hosted relay server running on Render:
+- **Public Relay URL**: `wss://crossbridge-relay.onrender.com/connect`
+- **Production Default**: Production/release builds of the Windows app (Tauri/Vite) automatically default to this URL. Android automatically receives and stores this URL from the Windows QR code during pairing.
+- **Render Cold-Start**: Because the relay is deployed on Render's free tier, inactivity for more than 15 minutes causes it to sleep. The first request after sleep (e.g. initiating pairing) will trigger a cold-start taking 45-60 seconds. Succeeding connections are routed instantly. Testing is fully verified against this live instance.
 
 ## Recommended Verification Commands
 
@@ -446,7 +447,6 @@ npm run verify:full
 - Repairing or provisioning a clean Windows MSVC packaging environment where Visual Studio C++ workload files are complete.
 - Honest validation of native tray behavior on unrestricted or signed Windows builds.
 - Android release signing and distribution.
-- Hosted relay ownership and deployment.
 - Finalized always-on background behavior expectations on Android.
 - Installer-grade, non-terminal setup for end users who should not run local relay commands themselves.
 
@@ -456,5 +456,5 @@ The strongest next milestone is:
 
 1. Produce a signed Windows native build that can be launched and tray-tested on policy-restricted machines.
 2. Produce a signed Android release artifact.
-3. Stand up a hosted relay with a stable `wss://` URL and documented operations.
+3. Configure production-grade, warm-standby hosted relay environments with autoscaling and abuse controls.
 4. Replace the remaining tester-only local setup steps with installer or first-run setup flows.

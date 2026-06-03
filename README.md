@@ -34,9 +34,9 @@ To test CrossBridge without touching a terminal:
 
 1. **Install Android App**: Download the pre-built `.apk` file directly on your phone and tap to install (enable sideloading if prompted).
 2. **Install Windows App**: Double-click the pre-built `CrossBridge_0.1.0_x64-setup.exe` or `.msi` file and follow the standard visual setup wizard.
-3. **Configure Hosted Relay**:
+3. **Zero-Config Public Relay**:
    - Open CrossBridge on your Windows PC.
-   - In the settings panel, replace the local fallback address with your public secure relay URL: `wss://relay.yourdomain.com/connect`
+   - The release application automatically connects to the public live Render relay: `wss://crossbridge-relay.onrender.com/connect` by default. No manual configuration is required. (Android will also automatically learn and save this relay URL from the Windows QR code when you scan and pair).
 4. **Scan and Pair**:
    - Go to the `Pair` tab on Windows and click **Create pairing code**.
    - Open the Android app, tap **Scan QR code**, and point your camera at the screen.
@@ -524,8 +524,8 @@ See [docs/security.md](docs/security.md).
 - The Windows browser UI is still useful for development, but tray behavior and DPAPI-backed key storage require the native Tauri runtime.
 - Unsigned Windows Tauri bundles may be blocked at runtime by WDAC/AppLocker on restricted machines even if they build successfully.
 - Android debug builds are suitable for tester installs, but a signed Android release build and distribution workflow are still pending.
-- There is no hosted relay environment bundled with this repo. Testers still need a locally started relay or a separately hosted compatible relay.
-- Runtime Android pairing is verified with the debug APK on an emulator using `ws://10.0.2.2:8787/connect`.
+- **Hosted Relay Environment**: Fully supported via the live, high-availability public Render relay at `wss://crossbridge-relay.onrender.com/connect` which is now the default for production builds. No local relay setup is required for testing.
+- Runtime Android pairing is verified with the debug APK on an emulator or physical phone using the live Render relay.
 - This is still a development and tester flow, not a fully signed end-user release.
 
 ## Development Roadmap

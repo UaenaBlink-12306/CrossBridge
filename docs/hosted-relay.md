@@ -39,10 +39,18 @@ The relay loads settings from environment variables with safe defaults:
 | :--- | :--- | :--- | :--- | :--- |
 | **Local Emulator** | `ws://127.0.0.1:8787/connect` | `ws://10.0.2.2:8787/connect` | `127.0.0.1` | Run Windows app & Emulator on same PC. |
 | **Physical Phone (LAN)** | `ws://127.0.0.1:8787/connect` | `ws://<PC-LAN-IP>:8787/connect` | `0.0.0.0` | Set `CROSSBRIDGE_RELAY_HOST=0.0.0.0`. |
-| **Hosted Production** | `wss://<your-domain>/connect` | `wss://<your-domain>/connect` | `0.0.0.0` | Run with HTTPS reverse proxy. |
+| **Hosted Live Render** | `wss://crossbridge-relay.onrender.com/connect` | `wss://crossbridge-relay.onrender.com/connect` | `0.0.0.0` | Live hosted instance. Set as default in production builds. |
+| **Hosted Production Custom** | `wss://<your-domain>/connect` | `wss://<your-domain>/connect` | `0.0.0.0` | Run with HTTPS reverse proxy. |
+
+> [!IMPORTANT]
+> **Render Cold-Start Behavior**: The public hosted relay `wss://crossbridge-relay.onrender.com/connect` is deployed on Render's free tier. 
+> - After 15 minutes of inactivity, the container spins down to conserve resources.
+> - When a client (or health check) attempts to connect after spin-down, the first connection request triggers an automatic cold-start boot sequence.
+> - This cold start typically introduces a **45 to 60 seconds delay** during which the initial handshake blocks or health check seems unresponsive.
+> - Once booted, the container is fully active and handles subsequent WebSocket handshakes and message routing instantly. Testers should wake the relay (e.g. by opening the Windows Pair page or visiting `/health` in a browser) and wait up to a minute before initiating pairing.
 
 > [!NOTE]
-> Physical LAN phone testing requires binding the relay to `0.0.0.0` so other devices on the same Wi-Fi router can reach the PC's LAN IP.
+> Physical LAN phone testing requires binding the local relay to `0.0.0.0` so other devices on the same Wi-Fi router can reach the PC's LAN IP.
 
 ---
 
@@ -114,12 +122,14 @@ Before deploying to production, it is vital to understand the **in-memory lifecy
 The relay naturally integrates with modern cloud platforms because it reads `PORT` and `HOST` out of the box.
 
 * **Render / Fly.io Configuration**:
-  * **Build Command**: `npm install && npm run build`
-  * **Start Command**: `node services/relay/dist/index.js`
+  * **Root Directory**: `.`
+  * **Build Command**: `npm ci --include=dev && npm run build -w @crossbridge/protocol && npm run build -w @crossbridge/relay`
+  * **Start Command**: `npm run start -w @crossbridge/relay`
   * **Environment Variables**:
     * `HOST`: `0.0.0.0`
-    * `PORT`: `8787` (Render overrides this automatically)
     * `CROSSBRIDGE_RELAY_PUBLIC_URL`: `wss://<your-app-name>.onrender.com/connect`
+    * `NODE_ENV`: `production`
+  * **Note**: Render deploys from a clean checkout, so the protocol workspace must be built before the relay workspace. Render also injects `PORT` automatically, so it does not need to be set manually.
 
 * **Google Cloud Run Configuration**:
   * Because Cloud Run is auto-scaling and serverless, special care must be taken with state:
