@@ -177,6 +177,12 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
+      - name: Build Android Tester APK Fallback
+        if: steps.decode_keystore.outputs.keystore_created != 'true'
+        run: |
+          cd apps/android
+          ./gradlew :app:assembleDebug
+
       - name: Build Android Release AAB (App Bundle)
         run: |
           cd apps/android
@@ -187,14 +193,36 @@ jobs:
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
+      - name: Stage Android release artifacts
+        run: |
+          mkdir -p apps/android/app/build/outputs/ci-apk
+          mkdir -p apps/android/app/build/outputs/ci-aab
+          mkdir -p apps/android/app/build/outputs/ci-apk-unsigned
+
+          if [ "${{ steps.decode_keystore.outputs.keystore_created }}" = "true" ]; then
+            cp apps/android/app/build/outputs/apk/release/*.apk apps/android/app/build/outputs/ci-apk/
+          else
+            cp apps/android/app/build/outputs/apk/debug/app-debug.apk apps/android/app/build/outputs/ci-apk/crossbridge-debug-signed-tester.apk
+            cp apps/android/app/build/outputs/apk/release/*.apk apps/android/app/build/outputs/ci-apk-unsigned/
+          fi
+
+          cp apps/android/app/build/outputs/bundle/release/*.aab apps/android/app/build/outputs/ci-aab/
+
       - name: Upload Android Release APK
         uses: actions/upload-artifact@v4
         with:
           name: crossbridge-android-apk
-          path: apps/android/app/build/outputs/apk/release/*.apk
+          path: apps/android/app/build/outputs/ci-apk/*.apk
+
+      - name: Upload Android Unsigned Release APK
+        if: steps.decode_keystore.outputs.keystore_created != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: crossbridge-android-apk-unsigned
+          path: apps/android/app/build/outputs/ci-apk-unsigned/*.apk
 
       - name: Upload Android Release AAB
         uses: actions/upload-artifact@v4
         with:
           name: crossbridge-android-aab
-          path: apps/android/app/build/outputs/bundle/release/*.aab
+          path: apps/android/app/build/outputs/ci-aab/*.aab
