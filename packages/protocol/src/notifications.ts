@@ -3,6 +3,9 @@ import { ErrorCodeSchema } from "./errors.js";
 import { MessageType } from "./messageTypes.js";
 import { TimestampSchema } from "./validators.js";
 
+const nullableNotificationText = (maxLength: number) =>
+  z.string().max(maxLength).nullish().transform((value) => value ?? null);
+
 export const NotificationActionPayloadSchema = z.object({
   actionId: z.string().trim().min(1).max(128),
   title: z.string().trim().min(1).max(128),
@@ -13,9 +16,9 @@ export const NotificationPostedPayloadSchema = z.object({
   notificationId: z.string().trim().min(1).max(256),
   packageName: z.string().trim().min(1).max(256),
   appName: z.string().trim().min(1).max(128),
-  title: z.string().max(512).nullable(),
-  text: z.string().max(4096).nullable(),
-  subText: z.string().max(512).nullable(),
+  title: nullableNotificationText(512),
+  text: nullableNotificationText(4096),
+  subText: nullableNotificationText(512),
   postTime: TimestampSchema,
   canDismiss: z.boolean(),
   actions: z.array(NotificationActionPayloadSchema).max(16)

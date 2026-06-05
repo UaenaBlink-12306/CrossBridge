@@ -217,6 +217,49 @@ describe("protocol validators", () => {
     })).toThrow();
   });
 
+  it("accepts notification payload text fields when Android omits them or sends null", () => {
+    expect(parseMessage({
+      version: 1,
+      id: "msg_notification_posted_missing_text_fields",
+      type: MessageType.NOTIFICATION_POSTED,
+      timestamp: now,
+      payload: {
+        notificationId: "notification_1",
+        packageName: "com.example",
+        appName: "Example",
+        postTime: now,
+        canDismiss: true,
+        actions: []
+      }
+    }).payload).toMatchObject({
+      title: null,
+      text: null,
+      subText: null
+    });
+
+    expect(parseMessage({
+      version: 1,
+      id: "msg_notification_posted_null_text_fields",
+      type: MessageType.NOTIFICATION_POSTED,
+      timestamp: now,
+      payload: {
+        notificationId: "notification_2",
+        packageName: "com.example",
+        appName: "Example",
+        title: null,
+        text: null,
+        subText: null,
+        postTime: now,
+        canDismiss: false,
+        actions: []
+      }
+    }).payload).toMatchObject({
+      title: null,
+      text: null,
+      subText: null
+    });
+  });
+
   it("validates encrypted file-transfer control payloads", () => {
     const offerPayload = {
       transferId: "transfer_abc",

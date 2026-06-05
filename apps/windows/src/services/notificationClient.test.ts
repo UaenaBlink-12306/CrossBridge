@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { generateDevelopmentKeyPair } from "@crossbridge/crypto";
+import { encryptAppMessage, generateDevelopmentKeyPair } from "@crossbridge/crypto";
 import { ErrorCode, MessageType } from "@crossbridge/protocol";
 import {
   createNotificationDismissEnvelope,
@@ -67,6 +67,56 @@ describe("notification mirror client", () => {
     expect(decoded?.controlMessage).toEqual({
       type: MessageType.NOTIFICATION_POSTED,
       payload
+    });
+  });
+
+  it("decodes notification posted envelopes when Android omits nullable text fields", async () => {
+    const android = await generateDevelopmentKeyPair();
+    const pc = await generateDevelopmentKeyPair();
+
+    const envelope = await encryptAppMessage({
+      message: {
+        version: 1,
+        id: "msg_notification_posted_missing_text_fields",
+        type: MessageType.NOTIFICATION_POSTED,
+        timestamp: 2_600,
+        fromDeviceId: "android_xxx",
+        toDeviceId: "pc_xxx",
+        payload: {
+          notificationId: "notif_2",
+          packageName: "com.example",
+          appName: "Example",
+          postTime: 2_100,
+          canDismiss: true,
+          actions: []
+        }
+      },
+      localPrivateKey: android.privateKey,
+      localPublicKey: android.publicKey,
+      peerPublicKey: pc.publicKey
+    });
+
+    const decoded = await decodeNotificationEnvelope({
+      envelope,
+      localDeviceId: "pc_xxx",
+      localPrivateKey: pc.privateKey,
+      localPublicKey: pc.publicKey,
+      peerPublicKey: android.publicKey
+    });
+
+    expect(decoded?.controlMessage).toEqual({
+      type: MessageType.NOTIFICATION_POSTED,
+      payload: {
+        notificationId: "notif_2",
+        packageName: "com.example",
+        appName: "Example",
+        title: null,
+        text: null,
+        subText: null,
+        postTime: 2_100,
+        canDismiss: true,
+        actions: []
+      }
     });
   });
 
