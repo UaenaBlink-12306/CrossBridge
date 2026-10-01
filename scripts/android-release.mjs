@@ -34,6 +34,8 @@ const result = spawnSync(process.execPath, [join(repo, "apps/android/scripts/run
 });
 if (result.status !== 0) process.exit(result.status ?? 1);
 const downloads = resolve(repo, "downloads");
+const version = readFileSync(join(repo, "apps/android/app/build.gradle.kts"), "utf8").match(/versionName\s*=\s*"([^"]+)"/)?.[1];
+if (!version) throw new Error("Android release version is missing.");
 mkdirSync(downloads, { recursive: true });
-copyFileSync(join(repo, "apps/android/app/build/outputs/apk/release/app-release.apk"), join(downloads, "CrossBridge-Android-0.2.0.apk"));
-console.log("Installable signed APK: downloads/CrossBridge-Android-0.2.0.apk");
+copyFileSync(join(repo, "apps/android/app/build/outputs/apk/release/app-release.apk"), join(downloads, `CrossBridge-Android-${version}.apk`));
+console.log(`Installable signed APK: downloads/CrossBridge-Android-${version}.apk`);

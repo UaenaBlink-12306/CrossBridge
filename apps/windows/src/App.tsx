@@ -97,7 +97,7 @@ function SettingsPage({ hideNotificationText, onHideNotificationTextChange }: {
       </label>
       <p>Closing the Windows window keeps CrossBridge in the system tray. Click its tray icon to reopen it; choose Quit in the tray menu to stop it.</p>
       <p>On Android, enable notification access to mirror notifications. Use Keep connected in background on the phone to receive while its window is closed.</p>
-      <p>CrossBridge 0.2.0 beta · text, links, files, and Android notifications. Screen mirroring, calls, and SMS are not included.</p>
+      <p>CrossBridge 0.2.1 beta · text, links, files, and Android notifications. Screen mirroring, calls, and SMS are not included.</p>
     </section>
   );
 }
@@ -105,7 +105,7 @@ function SettingsPage({ hideNotificationText, onHideNotificationTextChange }: {
 function DebugPage({ connectionState }: { connectionState: ConnectionViewState }) {
   const debugText = useMemo(() => JSON.stringify({
     capturedAt: new Date().toISOString(),
-    version: "0.2.0", protocolVersion: 1,
+    version: "0.2.1", protocolVersion: 1,
     phase: connectionState.phase,
     relayConnectionState: connectionState.relayConnectionState,
     trustedDevices: connectionState.trustedDevices.length,

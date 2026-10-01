@@ -1,6 +1,6 @@
-# Release readiness — CrossBridge 0.2.0 beta
+# Release readiness — CrossBridge 0.2.1 beta
 
-The beta provides a signed Android release APK and Windows Setup EXE, MSI, and portable ZIP through [GitHub Releases](https://github.com/UaenaBlink-12306/CrossBridge/releases/tag/v0.2.0). See [QUICK-START.md](QUICK-START.md). Both apps use the hosted encrypted relay without developer commands. The free hosted relay can take about a minute to wake after inactivity.
+The beta provides a signed Android release APK and Windows Setup EXE, MSI, and portable ZIP through [GitHub Releases](https://github.com/UaenaBlink-12306/CrossBridge/releases/tag/v0.2.1). See [QUICK-START.md](QUICK-START.md). Both apps use the hosted encrypted relay without developer commands. The free hosted relay can take about a minute to wake after inactivity.
 
 ## Usable features
 

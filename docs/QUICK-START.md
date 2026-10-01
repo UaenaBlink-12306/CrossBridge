@@ -1,9 +1,9 @@
-# CrossBridge 0.2.0 beta — install and pair
+# CrossBridge 0.2.1 beta — install and pair
 
 Download the Windows Setup EXE and Android APK from this release. No terminal, account, or local server is needed. Windows needs a 64-bit Windows 10/11 PC; Android needs Android 8 or newer. Both devices need internet access. Your VPN can stay on.
 
-1. On Windows, run **CrossBridge-Windows-0.2.0-Setup.exe** and open CrossBridge. The MSI is an alternative installer; the portable ZIP can be extracted and run as CrossBridge.exe.
-2. On Android, open **CrossBridge-Android-0.2.0.apk** and install it. Android may ask you to allow installs from the browser or file manager. This is a sideloaded beta, not a Play Store download.
+1. On Windows, run **CrossBridge-Windows-0.2.1-Setup.exe** and open CrossBridge. The MSI is an alternative installer; the portable ZIP can be extracted and run as CrossBridge.exe.
+2. On Android, open **CrossBridge-Android-0.2.1.apk** and install it. Android may ask you to allow installs from the browser or file manager. This is a sideloaded beta, not a Play Store download.
 3. On Windows, choose **Pair → Create pairing code**.
 4. On Android, choose **Scan QR code**. Allow camera access when prompted and scan the PC screen.
 5. Compare the six-digit verification code and confirm on **both** devices. Leave both apps open until the trusted device shows online.

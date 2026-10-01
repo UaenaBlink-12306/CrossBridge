@@ -1,8 +1,8 @@
 # CrossBridge
 
-## Download and use (0.2.0 beta)
+## Download and use (0.2.1 beta)
 
-Get the **Windows Setup EXE** and **Android APK** from [the 0.2.0 release](https://github.com/UaenaBlink-12306/CrossBridge/releases/tag/v0.2.0). Install both, choose **Pair → Create pairing code** on the PC, scan it on the phone, and confirm the matching six digits on both screens. The hosted connection is configured automatically; no terminal or account is needed.
+Get the **Windows Setup EXE** and **Android APK** from [the 0.2.1 release](https://github.com/UaenaBlink-12306/CrossBridge/releases/tag/v0.2.1). Install both, choose **Pair → Create pairing code** on the PC, scan it on the phone, and confirm the matching six digits on both screens. The hosted connection is configured automatically; no terminal or account is needed.
 
 Read [the short install and pairing guide](docs/QUICK-START.md) for file locations, background reception, notification access, and upgrade help. Windows also has an MSI and a portable ZIP. The APK is release-signed with a retained key; Windows is currently unsigned and managed PCs may block it.
 
