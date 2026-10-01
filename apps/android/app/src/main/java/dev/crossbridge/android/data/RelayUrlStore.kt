@@ -34,6 +34,6 @@ class RelayUrlStore(
 
     private companion object {
         const val KEY_RELAY_URL = "relayUrl"
-        const val DEFAULT_ANDROID_RELAY_URL = "ws://10.0.2.2:8787/connect"
+        const val DEFAULT_ANDROID_RELAY_URL = "wss://crossbridge-relay.onrender.com/connect"
     }
 }

@@ -1,5 +1,11 @@
 # CrossBridge
 
+## Download and use (0.2.0 beta)
+
+Get the **Windows Setup EXE** and **Android APK** from [the 0.2.0 release](https://github.com/UaenaBlink-12306/CrossBridge/releases/tag/v0.2.0). Install both, choose **Pair → Create pairing code** on the PC, scan it on the phone, and confirm the matching six digits on both screens. The hosted connection is configured automatically; no terminal or account is needed.
+
+Read [the short install and pairing guide](docs/QUICK-START.md) for file locations, background reception, notification access, and upgrade help. Windows also has an MSI and a portable ZIP. The APK is release-signed with a retained key; Windows is currently unsigned and managed PCs may block it.
+
 CrossBridge is a local-first Windows and Android bridge that already supports trusted-device pairing, auto-reconnect, encrypted text and link sharing, encrypted file transfer, Android share-sheet receive, Android notification mirror/reply/dismiss, and the native Windows tray runtime.
 
 CrossBridge must let VPN users keep their current network settings. Local network mode is only an optimization. Relay mode over encrypted WebSocket is a first-class connection path.
@@ -16,12 +22,12 @@ VPN can stay on. CrossBridge sends encrypted app messages through relay mode.
 - Mirror Android notification metadata to Windows and send dismiss or direct-reply actions back through Android when the source app allows them.
 - Run a native Windows tray shell in Tauri builds.
 
-## Still Missing For Release
+## Beyond This Beta
 
 - **Fully Signed Production Artifacts**: Unsigned builds will trigger OS-level security warnings (WDAC, AppLocker, SmartScreen) unless signed with trusted certificates.
-- **Hosted Public Relay Network**: End-users require a permanent, high-availability public `wss://` relay URL so they do not need to run a local server in a terminal.
+- **Always-on relay hosting**: The current hosted relay is preconfigured. A paid always-on service would avoid the cold start after inactivity.
 - **Store Distribution Channels**: Google Play Store and Windows Store publishing for automated updates.
-- **Lifecycle Background hardening**: Fully completed background services for instant wakes on Android when the app is completely swiped away.
+- **Platform lifecycle limits**: Android has an opt-in foreground connection service. Force stop, reboot, and device battery restrictions may still require opening the app again.
 
 ---
 

@@ -342,6 +342,8 @@ export class PairingClient {
         lastSeenAt: trustedAndroidDevice.lastSeenAt ?? Date.now()
       };
       try {
+        // Release the pairing socket before the normal trusted-device connection takes over.
+        this.relayClient.disconnect();
         await saveTrustedDevice(deviceWithLastSeen);
         this.updateState({
           state: "complete",

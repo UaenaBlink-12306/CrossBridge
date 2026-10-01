@@ -7,10 +7,10 @@ import org.junit.Test
 
 class RelayUrlStoreTest {
     @Test
-    fun defaultsToAndroidEmulatorRelayUrl() {
+    fun defaultsToHostedRelayUrl() {
         val store = RelayUrlStore(InMemoryKeyValueStore())
 
-        assertEquals("ws://10.0.2.2:8787/connect", store.loadRelayUrl())
+        assertEquals("wss://crossbridge-relay.onrender.com/connect", store.loadRelayUrl())
     }
 
     @Test
@@ -28,6 +28,6 @@ class RelayUrlStoreTest {
 
         store.saveRelayUrl("https://example.com/connect")
 
-        assertEquals("ws://10.0.2.2:8787/connect", store.loadRelayUrl())
+        assertEquals("wss://crossbridge-relay.onrender.com/connect", store.loadRelayUrl())
     }
 }

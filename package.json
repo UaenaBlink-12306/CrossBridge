@@ -17,6 +17,7 @@
     "android:doctor": "npm --prefix apps/android run doctor",
     "android:test": "npm --prefix apps/android run test",
     "android:build": "npm --prefix apps/android run build",
+    "android:release": "node scripts/android-release.mjs",
     "android:install": "npm --prefix apps/android run install:debug",
     "dev:relay": "npm run dev -w @crossbridge/relay",
     "dev:windows": "npm run dev -w @crossbridge/windows",

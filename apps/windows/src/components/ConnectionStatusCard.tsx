@@ -59,7 +59,9 @@ export function ConnectionStatusCard({
         </div>
       </div>
 
-      <label className="relay-url-field connection-relay-field">
+      <details className="advanced-settings">
+        <summary>Advanced connection settings</summary>
+        <label className="relay-url-field connection-relay-field">
         <span>Windows relay URL</span>
         <input
           type="url"
@@ -68,6 +70,7 @@ export function ConnectionStatusCard({
           spellCheck={false}
         />
       </label>
+      </details>
 
       {state.error ? <p className="error-note">{state.error}</p> : null}
 

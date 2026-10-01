@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.crossbridge.android.network.ConnectionPhase
@@ -24,6 +26,7 @@ fun ConnectionStatusCard(
     modifier: Modifier = Modifier
 ) {
     val onlineCount = viewState.trustedDevices.count { it.online }
+    var advanced by remember { mutableStateOf(false) }
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
@@ -54,7 +57,10 @@ fun ConnectionStatusCard(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            OutlinedTextField(
+            TextButton(onClick = { advanced = !advanced }) {
+                Text(if (advanced) "Hide advanced connection settings" else "Advanced connection settings")
+            }
+            if (advanced) OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = viewState.relayUrl,
                 onValueChange = onRelayUrlChange,

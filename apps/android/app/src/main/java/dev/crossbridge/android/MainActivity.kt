@@ -60,6 +60,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         (application as? CrossBridgeApplication)?.connectionManager?.start()
+        ConnectionService.resumeIfEnabled(this)
         handleIntent(intent)
 
         setContent {
@@ -119,46 +120,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun getSharedFileFromUri(context: Context, uri: Uri): SharedFile? {
-        val contentResolver = context.contentResolver
-        var name = "shared_file"
-        var size = 0L
-
-        try {
-            contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
-                if (cursor.moveToFirst()) {
-                    if (nameIndex != -1) {
-                        name = cursor.getString(nameIndex) ?: name
-                    }
-                    if (sizeIndex != -1) {
-                        size = cursor.getLong(sizeIndex)
-                    }
-                }
-            }
-        } catch (_: Exception) {}
-
-        val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
-
-        val bytes = try {
-            contentResolver.openInputStream(uri)?.use { inputStream ->
-                inputStream.readBytes()
-            }
-        } catch (_: Exception) {
-            null
-        } ?: return null
-
-        if (size == 0L) {
-            size = bytes.size.toLong()
-        }
-
-        return SharedFile(
-            uri = uri.toString(),
-            name = name,
-            mimeType = mimeType,
-            size = size,
-            bytes = bytes
-        )
-    }
+    private fun getSharedFileFromUri(context: Context, uri: Uri): SharedFile? =
+        runCatching { readSharedFile(context, uri) }.getOrNull()
 }

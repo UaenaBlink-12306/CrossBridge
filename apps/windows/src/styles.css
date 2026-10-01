@@ -7,6 +7,11 @@
   text-rendering: optimizeLegibility;
 }
 
+.advanced-settings { padding: 12px 0; color: #5e6d64; }
+.advanced-settings summary { cursor: pointer; font-weight: 600; }
+.advanced-settings[open] summary { margin-bottom: 16px; }
+.setup-note { color: #5e6d64; line-height: 1.5; }
+
 * {
   box-sizing: border-box;
 }

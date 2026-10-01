@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Bell,
   Bug,
@@ -35,12 +35,6 @@ const navItems: NavItem[] = [
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "settings", label: "Settings", icon: Settings },
   { id: "debug", label: "Debug", icon: Bug }
-];
-
-const connectionEvents = [
-  "Windows app opened",
-  "Relay not connected yet",
-  "Waiting for phone"
 ];
 
 function AppHeader({ connectionState }: { connectionState: ConnectionViewState }) {
@@ -87,30 +81,38 @@ function Sidebar({ activePage, onSelect }: { activePage: PageId; onSelect: (page
   );
 }
 
-function SettingsPage() {
+function SettingsPage({ hideNotificationText, onHideNotificationTextChange }: {
+  hideNotificationText: boolean;
+  onHideNotificationTextChange: (hidden: boolean) => void;
+}) {
   return (
     <section className="page settings-list">
-      <p>These settings are preview-only right now. Signed startup behavior and saved privacy preferences are still release work.</p>
+      <h2>Settings</h2>
       <label className="setting-row">
         <span>
-          <strong>Start minimized (planned)</strong>
-          <small>Requires the native Windows runtime plus signed startup wiring.</small>
+          <strong>Hide notification text</strong>
+          <small>Show app names while keeping mirrored message text hidden on this PC. Saved automatically.</small>
         </span>
-        <input type="checkbox" disabled />
+        <input type="checkbox" checked={hideNotificationText} onChange={(event) => onHideNotificationTextChange(event.target.checked)} />
       </label>
-      <label className="setting-row">
-        <span>
-          <strong>Hide sensitive notification text (planned)</strong>
-          <small>Will let Windows show app names while keeping mirrored message text hidden.</small>
-        </span>
-        <input type="checkbox" checked disabled readOnly />
-      </label>
+      <p>Closing the Windows window keeps CrossBridge in the system tray. Click its tray icon to reopen it; choose Quit in the tray menu to stop it.</p>
+      <p>On Android, enable notification access to mirror notifications. Use Keep connected in background on the phone to receive while its window is closed.</p>
+      <p>CrossBridge 0.2.0 beta · text, links, files, and Android notifications. Screen mirroring, calls, and SMS are not included.</p>
     </section>
   );
 }
 
 function DebugPage({ connectionState }: { connectionState: ConnectionViewState }) {
-  const debugText = useMemo(() => connectionEvents.join("\n"), []);
+  const debugText = useMemo(() => JSON.stringify({
+    capturedAt: new Date().toISOString(),
+    version: "0.2.0", protocolVersion: 1,
+    phase: connectionState.phase,
+    relayConnectionState: connectionState.relayConnectionState,
+    trustedDevices: connectionState.trustedDevices.length,
+    onlineDevices: connectionState.trustedDevices.filter((device) => device.online).length,
+    transfers: connectionState.transfers.length,
+    error: connectionState.error ?? null
+  }, null, 2), [connectionState]);
   const [exported, setExported] = useState(false);
 
   const isRelayConnected = connectionState.relayConnectionState === "connected";
@@ -150,6 +152,17 @@ export function App() {
   const [activePage, setActivePage] = useState<PageId>("home");
   const [connectionManager] = useState(() => new ConnectionManager());
   const [connectionState, setConnectionState] = useState(() => connectionManager.getState());
+  const [hideNotificationText, setHideNotificationText] = useState(() => {
+    try { return localStorage.getItem("crossbridge.hideNotificationText.v1") === "true"; } catch { return false; }
+  });
+  const handlePairingStart = useCallback(() => connectionManager.stop(), [connectionManager]);
+  const handlePairingEnd = useCallback((relayUrl: string) => {
+    void connectionManager.setRelayUrl(relayUrl).then(() => connectionManager.reconnectNow());
+  }, [connectionManager]);
+  function selectPage(page: PageId) {
+    if (activePage === "pair" && page !== "pair") void connectionManager.start();
+    setActivePage(page);
+  }
 
   useEffect(() => {
     let unsubscribeTrayReconnect: (() => void) | undefined;
@@ -183,7 +196,7 @@ export function App() {
     <div className="app-shell">
       <AppHeader connectionState={connectionState} />
       <div className="app-body">
-        <Sidebar activePage={activePage} onSelect={setActivePage} />
+        <Sidebar activePage={activePage} onSelect={selectPage} />
         <main className="main-panel">
           {activePage === "home" && (
             <HomePage
@@ -197,7 +210,7 @@ export function App() {
               }}
             />
           )}
-          {activePage === "pair" && <PairDevicePage />}
+          {activePage === "pair" && <PairDevicePage initialRelayUrl={connectionState.relayUrl} onPairingStart={handlePairingStart} onPairingEnd={handlePairingEnd} />}
           {activePage === "devices" && (
             <DevicesPage
               connectionState={connectionState}
@@ -229,6 +242,7 @@ export function App() {
           {activePage === "notifications" && (
             <NotificationFeedPage
               connectionState={connectionState}
+              hideNotificationText={hideNotificationText}
               onDismissNotification={(sourceDeviceId, notificationId) => {
                 void connectionManager.dismissNotification(sourceDeviceId, notificationId);
               }}
@@ -242,7 +256,10 @@ export function App() {
               }}
             />
           )}
-          {activePage === "settings" && <SettingsPage />}
+          {activePage === "settings" && <SettingsPage hideNotificationText={hideNotificationText} onHideNotificationTextChange={(hidden) => {
+            setHideNotificationText(hidden);
+            try { localStorage.setItem("crossbridge.hideNotificationText.v1", String(hidden)); } catch { /* Current session still honors the choice. */ }
+          }} />}
           {activePage === "debug" && <DebugPage connectionState={connectionState} />}
         </main>
       </div>

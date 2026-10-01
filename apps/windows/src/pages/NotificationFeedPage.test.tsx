@@ -65,5 +65,10 @@ describe("NotificationFeedPage", () => {
     expect(html).toContain("Reply sent to Android.");
     expect(html).toContain("Notification access is not active on Android right now.");
     expect(html).toContain("Encrypted mirror, dismiss, and reply");
+    const hiddenHtml = renderToStaticMarkup(<NotificationFeedPage connectionState={state} hideNotificationText />);
+    expect(hiddenHtml).toContain("Calendar");
+    expect(hiddenHtml).toContain("Notification text hidden in Settings.");
+    expect(hiddenHtml).not.toContain("CrossBridge Runtime");
+    expect(hiddenHtml).not.toContain("Notification mirror live check");
   });
 });

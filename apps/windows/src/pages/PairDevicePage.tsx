@@ -16,11 +16,17 @@ function isWebSocketUrl(value: string): boolean {
   }
 }
 
-export function PairDevicePage() {
+interface PairDevicePageProps {
+  initialRelayUrl?: string;
+  onPairingStart?: () => void;
+  onPairingEnd?: (relayUrl: string) => void;
+}
+
+export function PairDevicePage({ initialRelayUrl, onPairingStart, onPairingEnd }: PairDevicePageProps) {
   const pairingClient = useMemo(() => new PairingClient(), []);
   const [viewState, setViewState] = useState(() => pairingClient.getState());
-  const [relayUrl, setRelayUrl] = useState(DEFAULT_WINDOWS_RELAY_URL);
-  const [androidRelayUrl, setAndroidRelayUrl] = useState(DEFAULT_ANDROID_RELAY_URL);
+  const [relayUrl, setRelayUrl] = useState(initialRelayUrl ?? DEFAULT_WINDOWS_RELAY_URL);
+  const [androidRelayUrl, setAndroidRelayUrl] = useState(initialRelayUrl ?? DEFAULT_ANDROID_RELAY_URL);
   const [urlError, setUrlError] = useState<string | undefined>();
   const [now, setNow] = useState(Date.now());
 
@@ -28,7 +34,7 @@ export function PairDevicePage() {
     const unsubscribe = pairingClient.onStateChange(setViewState);
     return () => {
       unsubscribe();
-      pairingClient.disconnect();
+      pairingClient.dispose();
     };
   }, [pairingClient]);
 
@@ -44,8 +50,13 @@ export function PairDevicePage() {
     }
 
     setUrlError(undefined);
+    onPairingStart?.();
     await pairingClient.createPairingSession(relayUrl, androidRelayUrl);
   }
+
+  useEffect(() => {
+    if (viewState.state === "complete") onPairingEnd?.(relayUrl);
+  }, [viewState.state, relayUrl, onPairingEnd]);
 
   function confirmPairing() {
     pairingClient.confirmPairing();
@@ -58,7 +69,20 @@ export function PairDevicePage() {
 
   return (
     <section className="page pair-page">
-      <div className="pair-toolbar">
+      <div className="hero-panel">
+        <div>
+          <h2>Pair your Android phone</h2>
+          <p>1. Create a code here. 2. Open CrossBridge on your phone and scan it. 3. Confirm the matching six digits on both devices.</p>
+        </div>
+        <button className="primary-action" type="button" onClick={createPairingCode} disabled={!canCreate}>
+          {creating ? <RotateCcw size={18} aria-hidden="true" /> : <QrCode size={18} aria-hidden="true" />}
+          {creating ? "Connecting…" : "Create pairing code"}
+        </button>
+      </div>
+      <p className="setup-note">VPN can stay on. The hosted connection is configured for you. After inactivity, the first connection may take about a minute.</p>
+      <details className="advanced-settings">
+        <summary>Advanced connection settings</summary>
+        <div className="pair-toolbar">
         <label className="relay-url-field">
           <span>Windows relay URL</span>
           <input
@@ -78,27 +102,9 @@ export function PairDevicePage() {
             spellCheck={false}
           />
         </label>
-        <button className="primary-action" type="button" onClick={createPairingCode} disabled={!canCreate}>
-          {creating ? <RotateCcw size={18} aria-hidden="true" /> : <QrCode size={18} aria-hidden="true" />}
-          Create pairing code
-        </button>
-      </div>
-      <div style={{ marginTop: '1rem', padding: '0.85rem', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)', backgroundColor: 'rgba(255, 255, 255, 0.03)', fontSize: '0.875rem', lineHeight: '1.45' }}>
-        <p style={{ margin: 0, fontWeight: 600, color: '#f3f4f6', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          🛡️ VPN can stay on. CrossBridge communicates via encrypted relay envelopes.
-        </p>
-        <ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.2rem', color: '#9ca3af', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-          <li>
-            <strong>Local Emulator:</strong> Keep Windows at <code>ws://127.0.0.1:8787/connect</code> and use <code>ws://10.0.2.2:8787/connect</code> for Android.
-          </li>
-          <li>
-            <strong>Physical LAN Phone:</strong> Set Android QR URL to your PC's LAN IP (e.g. <code>ws://&lt;PC-LAN-IP&gt;:8787/connect</code>).
-          </li>
-          <li>
-            <strong>Hosted Relay:</strong> Configure both fields with your secure hosted URL (e.g. <code>wss://your-domain.com/connect</code>).
-          </li>
-        </ul>
-      </div>
+        </div>
+        <p>For development: Windows uses ws://127.0.0.1:8787/connect; the Android emulator uses ws://10.0.2.2:8787/connect. For a phone, use an address reachable from both devices.</p>
+      </details>
       {urlError ? <p className="relay-url-error">{urlError}</p> : null}
 
       <div className="two-column">

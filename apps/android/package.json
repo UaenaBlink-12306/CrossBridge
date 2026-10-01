@@ -5,6 +5,7 @@
   "scripts": {
     "doctor": "node scripts/check-android-env.mjs",
     "build": "node scripts/run-gradle-task.mjs :app:assembleDebug",
+    "build:release": "node scripts/run-gradle-task.mjs :app:assembleRelease",
     "test": "node scripts/run-gradle-task.mjs :app:testDebugUnitTest",
     "install:debug": "node scripts/run-gradle-task.mjs :app:installDebug"
   }

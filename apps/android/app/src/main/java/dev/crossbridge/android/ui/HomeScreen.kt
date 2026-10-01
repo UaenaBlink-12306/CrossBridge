@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -12,6 +14,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.Switch
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
+import android.Manifest
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
+import dev.crossbridge.android.ConnectionService
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -59,6 +69,14 @@ fun CrossBridgeApp(incomingShareState: MutableState<IncomingShare?> = remember {
     val viewState by pairingClient.viewState.collectAsState()
     val connectionState by connectionManager.viewState.collectAsState()
     var screen by remember { mutableStateOf(CrossBridgeScreen.HOME) }
+    fun goHome() {
+        if (screen == CrossBridgeScreen.PAIRING_CONFIRM) {
+            pairingClient.reset()
+            connectionManager.refreshAfterPairingComplete()
+        }
+        screen = CrossBridgeScreen.HOME
+    }
+    BackHandler(enabled = screen != CrossBridgeScreen.HOME) { goHome() }
 
     LaunchedEffect(Unit) {
         connectionManager.start()
@@ -115,7 +133,7 @@ fun CrossBridgeApp(incomingShareState: MutableState<IncomingShare?> = remember {
         }
 
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().safeDrawingPadding(),
             color = MaterialTheme.colorScheme.background
         ) {
             when (screen) {
@@ -135,6 +153,7 @@ fun CrossBridgeApp(incomingShareState: MutableState<IncomingShare?> = remember {
                 CrossBridgeScreen.SCAN_QR -> ScanQrScreen(
                     onBack = { screen = CrossBridgeScreen.HOME },
                     onPayloadReady = { payload ->
+                        connectionManager.suspendForPairing()
                         pairingClient.startPairing(payload)
                         screen = CrossBridgeScreen.PAIRING_CONFIRM
                     },
@@ -144,6 +163,7 @@ fun CrossBridgeApp(incomingShareState: MutableState<IncomingShare?> = remember {
                 CrossBridgeScreen.PASTE_QR -> PasteQrScreen(
                     onBack = { screen = CrossBridgeScreen.HOME },
                     onPayloadReady = { payload ->
+                        connectionManager.suspendForPairing()
                         pairingClient.startPairing(payload)
                         screen = CrossBridgeScreen.PAIRING_CONFIRM
                     }
@@ -152,7 +172,7 @@ fun CrossBridgeApp(incomingShareState: MutableState<IncomingShare?> = remember {
                 CrossBridgeScreen.PAIRING_CONFIRM -> PairingConfirmScreen(
                     viewState = viewState,
                     onConfirm = pairingClient::confirmPairing,
-                    onBack = { screen = CrossBridgeScreen.HOME },
+                    onBack = { goHome() },
                     onTrustedDevices = { screen = CrossBridgeScreen.TRUSTED_DEVICES }
                 )
 
@@ -199,6 +219,17 @@ fun HomeScreen(
     onRelayUrlChange: (String) -> Unit,
     onReconnect: () -> Unit
 ) {
+    val context = LocalContext.current
+    var backgroundEnabled by remember { mutableStateOf(ConnectionService.isEnabled(context)) }
+    var backgroundError by remember { mutableStateOf<String?>(null) }
+    fun updateBackground(enabled: Boolean) {
+        try {
+            ConnectionService.setEnabled(context, enabled)
+            backgroundEnabled = enabled
+            backgroundError = null
+        } catch (error: Exception) { backgroundError = "Could not start background connection. Reopen the app and try again." }
+    }
+    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { updateBackground(true) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -215,17 +246,9 @@ fun HomeScreen(
             style = MaterialTheme.typography.titleMedium
         )
         Text(
-            text = "VPN can stay on. CrossBridge sends encrypted app messages through relay mode.",
+            text = if (connectionState.trustedDevices.isEmpty()) "On your PC, open CrossBridge → Pair → Create pairing code. Scan that code below, then confirm the matching six digits on both devices." else "Your PC reconnects automatically when both apps are open. VPN can stay on.",
             style = MaterialTheme.typography.bodyMedium
         )
-
-        ConnectionStatusCard(
-            viewState = connectionState,
-            onRelayUrlChange = onRelayUrlChange,
-            onReconnect = onReconnect
-        )
-
-        PairingStatusCard(viewState = viewState)
 
         Button(
             modifier = Modifier.fillMaxWidth(),
@@ -239,6 +262,12 @@ fun HomeScreen(
         ) {
             Text("Paste pairing text")
         }
+        ConnectionStatusCard(
+            viewState = connectionState,
+            onRelayUrlChange = onRelayUrlChange,
+            onReconnect = onReconnect
+        )
+        if (viewState.state != PairingState.IDLE) PairingStatusCard(viewState = viewState)
         OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = onTrustedDevices
@@ -263,6 +292,15 @@ fun HomeScreen(
         ) {
             Text("Notification access and mirroring")
         }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Keep connected in background", modifier = Modifier.weight(1f))
+            Switch(checked = backgroundEnabled, onCheckedChange = { enabled ->
+                if (enabled && Build.VERSION.SDK_INT >= 33) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                else updateBackground(enabled)
+            })
+        }
+        Text("Shows a connection notification while running. Android may still stop the app after Force stop, reboot, or battery restrictions; open CrossBridge again to reconnect.", style = MaterialTheme.typography.bodySmall)
+        backgroundError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
     }
 }
 

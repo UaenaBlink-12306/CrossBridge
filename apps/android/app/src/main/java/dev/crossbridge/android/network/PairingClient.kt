@@ -304,6 +304,7 @@ class PairingClient(
         trustedDeviceStore.saveTrustedDevice(windowsDevice)
         relayUrlStore.saveRelayUrl(qrPayload.relayUrl)
         expiryJob?.cancel()
+        relayClient.disconnect()
         updateState(
             state = PairingState.COMPLETE,
             pcIdentity = DeviceIdentity(

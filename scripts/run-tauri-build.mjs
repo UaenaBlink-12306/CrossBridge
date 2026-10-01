@@ -20,7 +20,7 @@ function run(command, args, options = {}) {
   return spawnSync(command, args, {
     cwd: windowsWorkspaceRoot,
     encoding: "utf8",
-    shell: process.platform === "win32",
+    shell: process.platform === "win32" && /\.(cmd|bat)$/i.test(command),
     ...options
   });
 }

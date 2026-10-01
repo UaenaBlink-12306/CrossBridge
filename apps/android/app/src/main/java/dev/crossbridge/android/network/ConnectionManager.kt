@@ -1,7 +1,10 @@
 package dev.crossbridge.android.network
 
 import android.content.Context
+import android.content.ContentValues
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import dev.crossbridge.android.CrossBridgeNotificationListenerService
 import dev.crossbridge.android.data.AndroidIdentityStore
 import dev.crossbridge.android.data.RelayUrlStore
@@ -92,6 +95,7 @@ class ConnectionManager(
     private val relayUrlStore = RelayUrlStore(appContext)
     private val replayProtector = ReplayProtector(appContext)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    @Volatile private var pairingInProgress = false
     private val activeFileTransfers = HashMap<String, Pair<ByteArray, List<FileChunkDescriptor>>>()
     private val receivedChunks = HashMap<String, ArrayList<FileChunkPayload>>()
     private val unsubscribeRelayMessages: () -> Unit
@@ -565,20 +569,46 @@ class ConnectionManager(
         }
     }
 
-    private fun saveFile(fileName: String, bytes: ByteArray): String? {
-        return try {
+    private fun saveFile(fileName: String, mimeType: String?, bytes: ByteArray): String {
+        val safeName = fileName.substringAfterLast('/').substringAfterLast('\\')
+            .replace(Regex("[\\x00-\\x1f]"), "_").take(180).takeIf { it != "." && it != ".." && it.isNotBlank() } ?: "received_file"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val values = ContentValues().apply {
+                put(MediaStore.Downloads.DISPLAY_NAME, safeName)
+                put(MediaStore.Downloads.MIME_TYPE, mimeType ?: "application/octet-stream")
+                put(MediaStore.Downloads.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/CrossBridge")
+                put(MediaStore.Downloads.IS_PENDING, 1)
+            }
+            val resolver = appContext.contentResolver
+            val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                ?: error("Could not create the file in Downloads.")
+            try {
+                checkNotNull(resolver.openOutputStream(uri)).use { it.write(bytes) }
+                values.clear()
+                values.put(MediaStore.Downloads.IS_PENDING, 0)
+                resolver.update(uri, values, null, null)
+                return uri.toString()
+            } catch (error: Exception) {
+                resolver.delete(uri, null, null)
+                throw error
+            }
+        } else {
             val dir = appContext.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: appContext.cacheDir
-            val file = File(dir, fileName)
+            val file = File(dir, "${UUID.randomUUID()}_$safeName")
             FileOutputStream(file).use { out ->
                 out.write(bytes)
             }
-            file.absolutePath
-        } catch (_: Exception) {
-            null
+            return file.absolutePath
         }
     }
 
+    fun suspendForPairing() {
+        pairingInProgress = true
+        relayClient.disconnect()
+    }
+
     fun refreshAfterPairingComplete() {
+        pairingInProgress = false
         start()
         scope.launch {
             val identity = identityStore.loadOrCreateIdentity()
@@ -814,6 +844,7 @@ class ConnectionManager(
         forceReconnect: Boolean,
         announceIfConnected: Boolean
     ) {
+        if (pairingInProgress) return
         val current = _viewState.value
         if (current.trustedDevices.isEmpty()) {
             relayClient.disconnect()
@@ -1186,7 +1217,7 @@ class ConnectionManager(
                 chunks.add(chunk)
 
                 val bytesTransferred = chunks.sumOf { it.byteLength.toLong() }
-                val progress = (bytesTransferred * 100 / transfer.fileSize).toInt()
+                val progress = if (transfer.fileSize == 0L) 100 else (bytesTransferred * 100 / transfer.fileSize).toInt()
 
                 _viewState.update { current ->
                     current.copy(
@@ -1202,12 +1233,12 @@ class ConnectionManager(
             is FileTransferControlMessage.Complete -> {
                 val complete = controlMessage.payload
                 val transfer = _viewState.value.transfers.firstOrNull { it.transferId == complete.transferId } ?: return
-                if (transfer.status != FileTransferStatus.TRANSFERRING) return
+                if (transfer.status != FileTransferStatus.TRANSFERRING && transfer.status != FileTransferStatus.ACCEPTED) return
 
                 try {
                     val chunks = receivedChunks[complete.transferId] ?: emptyList()
                     val bytes = reassembleTransferredFile(chunks, complete.sha256)
-                    val savedPath = saveFile(transfer.fileName, bytes)
+                    val savedPath = saveFile(transfer.fileName, transfer.mimeType, bytes)
 
                     _viewState.update { current ->
                         current.copy(

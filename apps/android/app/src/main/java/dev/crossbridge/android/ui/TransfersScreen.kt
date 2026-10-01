@@ -9,7 +9,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import android.net.Uri
+import androidx.core.content.FileProvider
+import dev.crossbridge.android.SharedFile
+import dev.crossbridge.android.readSharedFile
 import dev.crossbridge.android.network.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,10 +37,42 @@ fun TransfersScreen(
         .filter { it.device.platform == "windows" }
     var selectedDeviceId by remember { mutableStateOf("") }
 
-    // State for mock file composer
-    var customFileName by remember { mutableStateOf("notes.txt") }
-    var customFileSizeKb by remember { mutableStateOf("10") }
-    var customMimeType by remember { mutableStateOf("text/plain") }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var selectedFile by remember { mutableStateOf<SharedFile?>(null) }
+    var fileError by remember { mutableStateOf<String?>(null) }
+    var readingFile by remember { mutableStateOf(false) }
+    var saveSource by remember { mutableStateOf<String?>(null) }
+    val chooseFile = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) scope.launch {
+            readingFile = true
+            fileError = null
+            selectedFile = null
+            try {
+                selectedFile = withContext(Dispatchers.IO) { readSharedFile(context, uri) }
+            } catch (error: Exception) {
+                fileError = error.message ?: "Could not read this file."
+            } finally {
+                readingFile = false
+            }
+        }
+    }
+    val saveCopy = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
+        val source = saveSource
+        if (uri != null && source != null) scope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val input = if (source.startsWith("content://")) context.contentResolver.openInputStream(Uri.parse(source))
+                        else File(source).inputStream()
+                    checkNotNull(input).use { stream ->
+                        checkNotNull(context.contentResolver.openOutputStream(uri)).use { stream.copyTo(it) }
+                    }
+                }
+            } catch (error: Exception) {
+                fileError = "Could not save a copy: ${error.message}"
+            }
+        }
+    }
 
     LaunchedEffect(pcDevices, selectedDeviceId) {
         if (pcDevices.isEmpty()) {
@@ -91,57 +135,24 @@ fun TransfersScreen(
                     Text(text = "No trusted PC paired yet.", color = Color.Gray)
                 }
 
-                // Preset pickers
-                Text(text = "File Presets:", style = MaterialTheme.typography.labelMedium)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = {
-                            customFileName = "notes.txt"
-                            customFileSizeKb = "10"
-                            customMimeType = "text/plain"
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("notes.txt (10K)")
-                    }
-                    OutlinedButton(
-                        onClick = {
-                            customFileName = "setup.exe"
-                            customFileSizeKb = "256"
-                            customMimeType = "application/octet-stream"
-                        },
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("setup.exe (Risky!)")
-                    }
+                OutlinedButton(
+                    onClick = { chooseFile.launch(arrayOf("*/*")) },
+                    enabled = !readingFile,
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text(if (readingFile) "Reading file…" else "Choose a file") }
+                selectedFile?.let { file ->
+                    Text("${file.name} · ${file.size} bytes")
+                    summarizeRiskyFileWarning(file.name)?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 }
-
-                // Inputs
-                OutlinedTextField(
-                    value = customFileName,
-                    onValueChange = { customFileName = it },
-                    label = { Text("File Name") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = customFileSizeKb,
-                    onValueChange = { customFileSizeKb = it },
-                    label = { Text("File Size (KB)") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                val enableSend = selectedDeviceId.isNotEmpty() && isOnline && isConnected && customFileName.isNotBlank()
+                Text("Files up to 64 MB. You can also share files from another app to CrossBridge.", style = MaterialTheme.typography.bodySmall)
+                val enableSend = selectedDeviceId.isNotEmpty() && isOnline && isConnected && selectedFile != null && !readingFile
 
                 Button(
                     onClick = {
-                        val sizeKb = customFileSizeKb.toLongOrNull() ?: 10L
-                        val content = ByteArray((sizeKb * 1024).toInt()) { 0 }
-                        onSendFileOffer(selectedDeviceId, customFileName, customMimeType, content)
+                        selectedFile?.let { file ->
+                            onSendFileOffer(selectedDeviceId, file.name, file.mimeType, file.bytes)
+                            selectedFile = null
+                        }
                     },
                     enabled = enableSend,
                     modifier = Modifier.fillMaxWidth()
@@ -160,6 +171,7 @@ fun TransfersScreen(
         }
 
         // Active/Past Transfers List
+        fileError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         Text(text = "Transfers History", style = MaterialTheme.typography.titleMedium)
 
         if (connectionState.transfers.isEmpty()) {
@@ -279,12 +291,26 @@ fun TransfersScreen(
                                     color = Color(0xFF2E7D32),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
-                                transfer.savedPath?.let {
+                                transfer.savedPath?.let { path ->
                                     Text(
-                                        text = "Saved to: $it",
+                                        text = if (path.startsWith("content://")) "Saved in Downloads / CrossBridge" else "Received file is ready to save or open.",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = Color.Gray
                                     )
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        OutlinedButton(onClick = {
+                                            try {
+                                                val uri = if (path.startsWith("content://")) Uri.parse(path) else
+                                                    FileProvider.getUriForFile(context, "${context.packageName}.files", File(path))
+                                                context.startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(uri, transfer.mimeType ?: "application/octet-stream")
+                                                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+                                            } catch (_: Exception) { fileError = "No app can open this file. Use Save a copy instead." }
+                                        }) { Text("Open") }
+                                        OutlinedButton(onClick = {
+                                            saveSource = path
+                                            saveCopy.launch(transfer.fileName)
+                                        }) { Text("Save a copy") }
+                                    }
                                 }
                             }
 

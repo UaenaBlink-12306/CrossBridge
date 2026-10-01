@@ -379,6 +379,7 @@ function formatNotificationTime(timestamp: number): string {
 
 interface NotificationFeedPageProps {
   connectionState: ConnectionViewState;
+  hideNotificationText?: boolean;
   onDismissNotification?: (sourceDeviceId: string, notificationId: string) => void;
   onReplyNotification?: (
     sourceDeviceId: string,
@@ -390,6 +391,7 @@ interface NotificationFeedPageProps {
 
 export function NotificationFeedPage({
   connectionState,
+  hideNotificationText = false,
   onDismissNotification,
   onReplyNotification
 }: NotificationFeedPageProps) {
@@ -437,9 +439,11 @@ export function NotificationFeedPage({
                       {formatNotificationTime(notification.postTime)}
                     </time>
                   </div>
-                  {notification.title ? <h3>{notification.title}</h3> : null}
-                  {notification.text ? <p>{notification.text}</p> : null}
-                  {notification.subText ? <small>{notification.subText}</small> : null}
+                  {hideNotificationText ? <p>Notification text hidden in Settings.</p> : <>
+                    {notification.title ? <h3>{notification.title}</h3> : null}
+                    {notification.text ? <p>{notification.text}</p> : null}
+                    {notification.subText ? <small>{notification.subText}</small> : null}
+                  </>}
                   <div className="notification-card-footer">
                     <div className="notification-status-pills">
                       <span
